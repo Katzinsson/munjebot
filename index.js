@@ -10,8 +10,8 @@ const {
   GatewayIntentBits,
   Partials
 } = require('discord.js');
+const token = process.env.DISCORD_BOT_TOKEN;
 
-const { token } = require('./src/config');
 
 const client = new Client({
   intents: [
