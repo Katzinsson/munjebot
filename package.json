@@ -1,14 +1,14 @@
 {
   "name": "munjebot",
   "version": "1.0.0",
-  "description": "🚀 Speed Leaderboard | Dodaj svoj rezultat: +463 speed | Bot automatski reaguje i cuva rezultate",
+  "description": "",
   "license": "ISC",
-  "author": "katze",
+  "author": "",
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "node index.js",
+    "dev": "nodemon index.js",
     "deploy": "node deploy-commands.js"
   },
   "dependencies": {

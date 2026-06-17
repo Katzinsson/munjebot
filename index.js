@@ -4,7 +4,13 @@ require('dotenv').config();
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, GatewayIntentBits, Partials } = require('discord.js');
+const {
+  Client,
+  Collection,
+  GatewayIntentBits,
+  Partials
+} = require('discord.js');
+
 const { token } = require('./src/config');
 
 const client = new Client({
@@ -16,7 +22,7 @@ const client = new Client({
   partials: [Partials.Channel]
 });
 
-// ─── COMMANDS ───
+// ─── COMMAND HANDLER ─────────────────────────────
 client.commands = new Collection();
 
 const commandsPath = path.join(__dirname, 'src', 'commands');
@@ -30,7 +36,7 @@ for (const file of commandFiles) {
   }
 }
 
-// ─── EVENTS ───
+// ─── EVENTS ─────────────────────────────
 const eventsPath = path.join(__dirname, 'src', 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(f => f.endsWith('.js'));
 
@@ -44,7 +50,7 @@ for (const file of eventFiles) {
   }
 }
 
-// ─── SLASH COMMANDS ───
+// ─── INTERACTIONS (FIXED ANTI DOUBLE REPLY) ─────
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
@@ -54,16 +60,32 @@ client.on('interactionCreate', async interaction => {
   try {
     await command.execute(interaction);
   } catch (err) {
-    console.error(err);
-    if (!interaction.replied) {
-      await interaction.reply({ content: '❌ Error', ephemeral: true });
+    console.error(`❌ Command Error /${interaction.commandName}:`, err);
+
+    try {
+      if (interaction.deferred || interaction.replied) {
+        await interaction.followUp({
+          content: '❌ Fehler beim Ausführen des Commands.',
+          ephemeral: true
+        });
+      } else {
+        await interaction.reply({
+          content: '❌ Fehler beim Ausführen des Commands.',
+          ephemeral: true
+        });
+      }
+    } catch (e) {
+      console.error('❌ Reply Error:', e);
     }
   }
 });
 
-// ─── LOGIN ───
-client.login(token).then(() => {
-  console.log('🤖 Bot ist online');
-}).catch(err => {
-  console.error('❌ Login Fehler:', err);
+// ─── READY ─────────────────────────────
+client.once('ready', () => {
+  console.log(`🤖 Bot online als ${client.user.tag}`);
 });
+
+// ─── LOGIN ─────────────────────────────
+client.login(token)
+  .then(() => console.log('✅ Login erfolgreich'))
+  .catch(err => console.error('❌ Login Fehler:', err));
